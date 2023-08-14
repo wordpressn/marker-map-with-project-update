@@ -1,0 +1,97 @@
+<!--- Google Map  Marker End  Here! --->
+        
+<section class="homeMap "> 
+<h2 class="Title anim fadeRight text-center" aria-label="Our Project Location">Our Project Location</h2>
+<div class="clearfix"></div>
+<div class="homeMap__wrapper" id="homeMap"></div>
+</section><script>
+function initMap() {
+    <?php  query_posts('post_type=project&post_status=publish&posts_per_page=200&category_name=ongoing&order=ASC&paged='. get_query_var('post')); ?>
+var map_json = {   <?php if(have_posts()) : while(have_posts()) : the_post(); ?> "<?php echo get_the_ID(); ?>":{"title":"<?php the_title() ; ?>","location":"<?php the_field('area'); ?>","category":"Ongoing","project_map_lat":"<?php the_field('lat'); ?>","project_map_long":"<?php the_field('long'); ?>"}, <?php endwhile; endif;  ?> };
+var locations = [];
+$.each(map_json, function (i, val) {
+var map_Array = [];
+var custom_data = {
+info: '<div class="map-popup-home"> <div class="texts"> <h4>' + val.title + '</h4><span><strong>' + val.category + ' Project, </strong>' + val.location + '</span></div> </div> ',
+lat: Number(val.project_map_lat),
+long: Number(val.project_map_long)
+}
+map_Array.push(custom_data.info, custom_data.lat, custom_data.long, locations.length);
+locations.push(map_Array);
+});
+var map = new google.maps.Map(document.getElementById('homeMap'), {
+zoom: 13,
+center: new google.maps.LatLng(locations[0][1], locations[0][2]),
+mapTypeId: google.maps.MapTypeId.ROADMAP,
+styles: [{
+"featureType": "water",
+"elementType": "geometry",
+"stylers": [{"color": "#e9e9e9"}, {"lightness": 17}]
+}, {
+"featureType": "landscape",
+"elementType": "geometry",
+"stylers": [{"color": "#f5f5f5"}, {"lightness": 20}]
+}, {
+"featureType": "road.highway",
+"elementType": "geometry.fill",
+"stylers": [{"color": "#ffffff"}, {"lightness": 17}]
+}, {
+"featureType": "road.highway",
+"elementType": "geometry.stroke",
+"stylers": [{"color": "#ffffff"}, {"lightness": 29}, {"weight": 0.2}]
+}, {
+"featureType": "road.arterial",
+"elementType": "geometry",
+"stylers": [{"color": "#ffffff"}, {"lightness": 18}]
+}, {
+"featureType": "road.local",
+"elementType": "geometry",
+"stylers": [{"color": "#ffffff"}, {"lightness": 16}]
+}, {
+"featureType": "poi",
+"elementType": "geometry",
+"stylers": [{"color": "#f5f5f5"}, {"lightness": 21}]
+}, {
+"featureType": "poi.park",
+"elementType": "geometry",
+"stylers": [{"color": "#dedede"}, {"lightness": 21}]
+}, {
+"elementType": "labels.text.stroke",
+"stylers": [{"visibility": "on"}, {"color": "#ffffff"}, {"lightness": 16}]
+}, {
+"elementType": "labels.text.fill",
+"stylers": [{"saturation": 36}, {"color": "#333333"}, {"lightness": 40}]
+}, {"elementType": "labels.icon", "stylers": [{"visibility": "off"}]}, {
+"featureType": "transit",
+"elementType": "geometry",
+"stylers": [{"color": "#f2f2f2"}, {"lightness": 19}]
+}, {
+"featureType": "administrative",
+"elementType": "geometry.fill",
+"stylers": [{"color": "#fefefe"}, {"lightness": 20}]
+}, {
+"featureType": "administrative",
+"elementType": "geometry.stroke",
+"stylers": [{"color": "#fefefe"}, {"lightness": 17}, {"weight": 1.2}]
+}
+]
+});
+var infowindow = new google.maps.InfoWindow({});
+var marker, i;
+for (i = 0; i < locations.length; i++) {
+marker = new google.maps.Marker({
+position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+map: map
+});
+google.maps.event.addListener(marker, 'click', (function (marker, i) {
+return function () {
+infowindow.setContent(locations[i][0]);
+infowindow.open(map, marker);
+}
+})(marker, i));
+}
+} 
+</script><script async defer 
+src="https://maps.googleapis.com/maps/api/js?key=<?php print get_theme_mod('mapapikey'); ?>&amp;callback=initMap">
+</script>
+        <!--- Google Map  Marker End  Here! --->
